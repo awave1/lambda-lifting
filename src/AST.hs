@@ -1,7 +1,7 @@
 module AST where
 
-newtype Prog a b = Prog [Fun a b]
-newtype Fun a b = Fun (a, [b], Exp a b)
+newtype Prog a b = Prog [Fun a b] deriving Show
+newtype Fun a b = Fun (a, [b], Exp a b) deriving Show
 
 data BoolExp a b = Lt (Exp a b) (Exp a b)
                 | Gt (Exp a b) (Exp a b)
@@ -9,6 +9,7 @@ data BoolExp a b = Lt (Exp a b) (Exp a b)
                 | AND (BoolExp a b) (BoolExp a b)
                 | OR (BoolExp a b) (BoolExp a b)
                 | NOT (BoolExp a b)
+                deriving Show
 
 data Exp a b = ADD (Exp a b) (Exp a b)
              | SUB (Exp a b) (Exp a b)
@@ -20,6 +21,7 @@ data Exp a b = ADD (Exp a b) (Exp a b)
              | COND (BoolExp a b) (Exp a b) (Exp a b)
              | APP a [Exp a b]
              | LET [Fun a b] (Exp a b)
+             deriving Show
 
 -- -- Pretty Printer
 class Printer a where
