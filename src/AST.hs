@@ -21,7 +21,7 @@ data Exp a b = ADD (Exp a b) (Exp a b)
              | APP a [Exp a b]
              | LET [Fun a b] (Exp a b)
 
--- Pretty Printer
+-- -- Pretty Printer
 class Printer a where
     printer:: a -> String
 
@@ -35,72 +35,75 @@ instance Printer Int where
 instance Printer Char where
   printer c = [c]
 
-
 -- to print n printSpaces
 printSpaces :: Int -> String
 printSpaces 0 = ""
 printSpaces n = " " ++ printSpaces (n - 1)
 
-showProg :: (Printer a, Printer b) => Prog a b -> String
--- showProg (Prog funs) = concat (map (\f -> (showFun 0 f) ++ "\n") funs)
-showProg (Prog funs) = concatMap (\f -> showFun 0 f ++ "\n") funs
+showProgram :: (Printer a, Printer b) => Prog a b -> String
+showProgram (Prog functions) =
+  concatMap (\f -> showFunction 0 f ++ "\n") functions
 
-showFun :: (Printer a, Printer b) => Int -> Fun a b -> String
-showFun n (Fun (fname, a1 : args, body)) =
+showFunction :: (Printer a, Printer b) => Int -> Fun a b -> String
+showFunction n (Fun (functionName, a1 : args, body)) =
   printSpaces n
     ++ "fun "
-    ++ printer fname
+    ++ printer functionName
     ++ "("
     ++ printer a1
     ++ concatMap (\a -> "," ++ printer a) args
     ++ ") = "
-    ++ showExp' n body
-showFun n (Fun (fname, [], body)) =
-  printSpaces n ++ printer fname ++ "() = " ++ showExp' n body
+    ++ buildExpression n body
+showFunction n (Fun (functionName, [], body)) =
+  printSpaces n ++ printer functionName ++ "() = " ++ buildExpression n body
 
-showExp :: (Printer a, Printer b) => Int -> Exp a b -> String
-showExp n exp = printSpaces n ++ showExp' n exp
+showExpression :: (Printer a, Printer b) => Int -> Exp a b -> String
+showExpression n exp = printSpaces n ++ buildExpression n exp
 
-showExp' :: (Printer a, Printer b) => Int -> Exp a b -> String
-showExp' n (ADD e1 e2) = showExp' n e1 ++ "+" ++ showExp' n e2
-showExp' n (MUL e1 e2) = showExp' n e1 ++ "*" ++ showExp' n e2
-showExp' n (DIV e1 e2) = showExp' n e1 ++ "/" ++ showExp' n e2
-showExp' n (SUB e1 e2) = showExp' n e1 ++ "-" ++ showExp' n e2
-showExp' n (NEG   e  ) = "-" ++ showExp' n e
-showExp' n (CONST m  ) = show m
-showExp' n (VAR   b  ) = printer b
-showExp' n (COND b e1 e2) =
-  "(if "
-    ++ showBoolExp n b
-    ++ "\\n"
-    ++ printSpaces (n + 3)
-    ++ "then "
-    ++ showExp' (n + 3) e1
-    ++ "\n"
-    ++ printSpaces (n + 3)
-    ++ "else "
-    ++ showExp' (n + 3) e1
-    ++ ")"
-showExp' n (APP f (e : es)) =
-  printer f
-    ++ "("
-    ++ showExp' n e
-    ++ concatMap (\x -> "," ++ showExp' n x) es
-    ++ ")"
-showExp' n (LET [] e) = showExp' n e
-showExp' n (LET (f : fs) e) =
-  "let\n"
-    ++ showFun (n + 3) f
-    ++ concatMap (\f -> "\n" ++ showFun (n + 3) f) fs
-    ++ "\n"
-    ++ printSpaces n
-    ++ "in  "
-    ++ showExp' n e
+buildExpression :: (Printer a, Printer b) => Int -> Exp a b -> String
+buildExpression n exp = case exp of
+  (ADD e1 e2) -> buildExpression n e1 ++ "+" ++ buildExpression n e2
+  (MUL e1 e2) -> buildExpression n e1 ++ "*" ++ buildExpression n e2
+  (DIV e1 e2) -> buildExpression n e1 ++ "/" ++ buildExpression n e2
+  (SUB e1 e2) -> buildExpression n e1 ++ "-" ++ buildExpression n e2
+  (NEG   e  ) -> "-" ++ buildExpression n e
+  (CONST m  ) -> show m
+  (VAR   b  ) -> printer b
+  (COND b e1 e2) ->
+    "(if "
+      ++ showBoolExpressionExp n b
+      ++ "\\n"
+      ++ printSpaces (n + 3)
+      ++ "then "
+      ++ buildExpression (n + 3) e1
+      ++ "\n"
+      ++ printSpaces (n + 3)
+      ++ "else "
+      ++ buildExpression (n + 3) e1
+      ++ ")"
+  (APP f (e : es)) ->
+    printer f
+      ++ "("
+      ++ buildExpression n e
+      ++ concatMap (\x -> "," ++ buildExpression n x) es
+      ++ ")"
+  (LET [] e) -> buildExpression n e
+  (LET (f : fs) e) ->
+    "let\n"
+      ++ showFunction (n + 3) f
+      ++ concatMap (\f -> "\n" ++ showFunction (n + 3) f) fs
+      ++ "\n"
+      ++ printSpaces n
+      ++ "in  "
+      ++ buildExpression n e
 
-showBoolExp :: (Printer a, Printer b) => Int -> BoolExp a b -> String
-showBoolExp n (Lt  e1 e2) = showExp' n e1 ++ "<" ++ showExp' n e2
-showBoolExp n (Gt  e1 e2) = showExp' n e1 ++ ">" ++ showExp' n e2
-showBoolExp n (Eq  e1 e2) = showExp' n e1 ++ "==" ++ showExp' n e2
-showBoolExp n (AND e1 e2) = showBoolExp n e1 ++ "&&" ++ showBoolExp n e2
-showBoolExp n (OR  e1 e2) = showBoolExp n e1 ++ "||" ++ showBoolExp n e2
-showBoolExp n (NOT e    ) = "not(" ++ showBoolExp n e ++ ")"
+showBoolExpressionExp :: (Printer a, Printer b) => Int -> BoolExp a b -> String
+showBoolExpressionExp n exp = case exp of
+  (Lt e1 e2) -> buildExpression n e1 ++ "<" ++ buildExpression n e2
+  (Gt e1 e2) -> buildExpression n e1 ++ ">" ++ buildExpression n e2
+  (Eq e1 e2) -> buildExpression n e1 ++ "==" ++ buildExpression n e2
+  (AND e1 e2) ->
+    showBoolExpressionExp n e1 ++ "&&" ++ showBoolExpressionExp n e2
+  (OR e1 e2) ->
+    showBoolExpressionExp n e1 ++ "||" ++ showBoolExpressionExp n e2
+  (NOT e) -> "not(" ++ showBoolExpressionExp n e ++ ")"

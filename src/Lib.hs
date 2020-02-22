@@ -5,7 +5,7 @@ where
 
 import           AST
 
-test1 = showProg
+test1 = showProgram
   (Prog
     [ Fun ("main", [], ADD (VAR "X") (VAR "Y"))
     , Fun
@@ -21,7 +21,7 @@ test1 = showProg
   )
 
 
-test2 = showProg
+test2 = showProgram
   (Prog
     [ Fun ("main", [], ADD (VAR 1) (VAR 2))
     , Fun
