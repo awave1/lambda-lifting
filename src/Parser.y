@@ -35,7 +35,7 @@ import Lexer
 
 Exp   : fun var Params '=' let var '=' Exp in Exp { Fun $2 $3 (Let $6 $8 $10) }
       | fun var Params '=' Exp where var '=' Exp  { Fun $2 $3 (Where $5 $7 $9) }
-      | fun var Params '=' Exp                    { Fun $3 $3 $5 }
+      | fun var Params '=' Exp                    { Fun $2 $3 $5 }
       | Exp1                                      { Exp1 $1 }
 
 Params: '(' ')'                       { [] }
