@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 768ae0d4fa6d73ec6951e1fcf19848086a1001e627fa63c11945df26dd5af618
+-- hash: 8a6991e001af7cb80a371f2eaea5506884c6329a55953e54c634f6db993b147b
 
 name:           lambda-lifting
 version:        0.1.0.0
@@ -27,10 +27,17 @@ source-repository head
 
 library
   exposed-modules:
+      AbsAssignment
       AST
+      ASTConverter
+      ErrM
       Language
+      LayoutAssignment
+      LexAssignment
       Lexer
       Lib
+      ParAssignment
+      ParseProg
       Parser
   other-modules:
       Paths_lambda_lifting

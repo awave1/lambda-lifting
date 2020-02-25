@@ -36,9 +36,6 @@ executables:
       - -with-rtsopts=-N
     dependencies:
       - lambda-lifting
-    build-tools:
-      - alex
-      - happy
 
 tests:
   lambda-lifting-test:
@@ -50,6 +47,3 @@ tests:
       - -with-rtsopts=-N
     dependencies:
       - lambda-lifting
-    build-tools:
-      - alex
-      - happy
