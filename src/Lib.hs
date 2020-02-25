@@ -5,9 +5,13 @@ where
 
 import           AST
 import           System.Environment
+import           Parser                         ( parseExp )
 
 lambdaLift :: IO ()
 lambdaLift = do
-  args <- getArgs
-  file <- readFile $ head args
-  putStrLn file
+  args   <- getArgs
+  result <- case args of
+    []  -> fmap (parseExp "<stdin>") getContents
+    [f] -> fmap (parseExp f) (readFile f)
+    _   -> error "expected 1 arg"
+  either putStrLn print result

@@ -33,10 +33,18 @@ import Lexer
 
 %%
 
-Exp   : fun var Params '=' let var '=' Exp in Exp { Fun $2 $3 (Let $6 $8 $10) }
+{-
+      TODO: - add support for function calls
+      TODO: - add support for let fun expressions
+-}
+
+Exp   : fun var Params '=' let var '=' Exp in Exp    { Fun $2 $3 (Let $6 $8 $10) }
+      | fun var Params '=' let FunExp '=' Exp in Exp { Fun $2 $3 (Let $6 $8 $10) }
       | fun var Params '=' Exp where var '=' Exp  { Fun $2 $3 (Where $5 $7 $9) }
       | fun var Params '=' Exp                    { Fun $2 $3 $5 }
       | Exp1                                      { Exp1 $1 }
+
+FunExp: fun var Params '=' Exp { Fun $2 $3 $5 }
 
 Params: '(' ')'                       { [] }
       | '(' Params_ ')'               { $2 }
@@ -45,6 +53,7 @@ Params_: Param             { [$1] }
        | Params_ ',' Param { $3:$1 }
 
 Param: var { Var $1 }
+
 
 Exp1  : Exp1 '+' Term           { Plus $1 $3 }
       | Exp1 '-' Term           { Minus $1 $3 }
