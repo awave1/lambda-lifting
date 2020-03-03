@@ -38,3 +38,17 @@
     4. use dijkstra's to find the spanning tree(?)
     5. can just do the exact formula using set datatype
     6. keep going 
+   
+---
+```
+(AST.Fun ("f",["v1"],AST.LET [AST.Fun ("g",["v2"],AST.MUL (AST.VAR "v2") (AST.VAR "v2"))] (AST.ADD (AST.APP "g" [AST.VAR "v1"]) (AST.VAR "v1"))))
+```
+
+```
+(AST.Fun ("main",["x","y","z"],AST.LET [AST.Fun ("f",["y"],AST.ADD (AST.VAR "x") (AST.APP "g" [AST.VAR "y"])),AST.Fun ("g",["z"],AST.LET [AST.Fun ("f",["x"],AST.MUL (AST.VAR "x") (AST.VAR "z"))] (AST.APP "f" [AST.VAR "x"]))] (AST.ADD (AST.APP "g" [AST.VAR "z"]) (AST.APP "f" [AST.VAR "x"]))))
+```
+
+```
+(AST.Fun ("main",["x","y"],AST.LET [AST.Fun ("f",["y"]
+,AST.ADD (AST.VAR "x") (AST.VAR "y"))] (AST.ADD (AST.APP "f" [AST.VAR "x"]) (AST.VAR "y"))))
+```

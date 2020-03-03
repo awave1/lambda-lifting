@@ -17,7 +17,7 @@ newtype Prog a b = Prog [Fun a b] deriving Show
 --  finally there is the body of the function.
 -----------------------------------------------------------------------------
 
-newtype Fun a b = Fun (a,[b],Exp a b) deriving Show
+newtype Fun a b = Fun (a, [b], Exp a b) deriving Show
 
 -----------------------------------------------------------------------------
 -- There are two types of expressions: Boolean expressions and 
@@ -36,11 +36,11 @@ data BExp a b   = Lt (Exp a b) (Exp a b)
                 | TRUE
                 | FALSE
                 deriving Show
+
 -----------------------------------------------------------------------------
 -- Arithmetic expressions allow +,*,/,- (binary and unary), constants, 
 -- variables, conditionals, function applications and let expressions.
 -----------------------------------------------------------------------------
-
 data Exp a b =  ADD (Exp a b) (Exp a b)
           | SUB (Exp a b) (Exp a b)
           | MUL (Exp a b) (Exp a b)
@@ -49,7 +49,7 @@ data Exp a b =  ADD (Exp a b) (Exp a b)
           | CONST Int
           | VAR b
           | COND (BExp a b) (Exp a b)(Exp a b)
-          | APP a [(Exp a b)]
+          | APP a [Exp a b]
           | LET [Fun a b] (Exp a b)
           deriving Show
 
@@ -146,40 +146,3 @@ show_bexp n (NOT e    ) = "not(" ++ (show_bexp n e) ++ ")"
 show_bexp n (TRUE     ) = "true"
 show_bexp n (FALSE    ) = "false"
 
-test1 = putStr
-  (show_prog
-    ((Prog
-       [ Fun ("main", [], (ADD (VAR "x") (VAR "y")))
-       , Fun
-         ( "f"
-         , ["x"]
-         , (LET
-             [ Fun ("g", ["y"], MUL (VAR "y") (VAR "x"))
-             , Fun ("h", ["x", "y"], DIV (VAR "x") (VAR "y"))
-             ]
-             (ADD (APP "g" [VAR "x"]) (APP "h" [VAR "x", CONST 7]))
-           )
-         )
-       ]
-     ) :: (Prog String String)
-    )
-  )
-
-test2 = putStr
-  (show_prog
-    ((Prog
-       [ Fun ("main", [], (ADD (VAR 1) (VAR 2)))
-       , Fun
-         ( "f"
-         , [1]
-         , (LET
-             [ Fun ("g", [2], MUL (VAR 2) (VAR 1))
-             , Fun ("h", [1, 2], DIV (VAR 1) (VAR 2))
-             ]
-             (ADD (APP "g" [VAR 1]) (APP "h" [VAR 1, CONST 7]))
-           )
-         )
-       ]
-     ) :: (Prog String Int)
-    )
-  )
