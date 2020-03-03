@@ -27,7 +27,7 @@ newtype Fun a b = Fun (a, [b], Exp a b) deriving Show
 --  and logical operations &&,||,not.
 -----------------------------------------------------------------------------
 
-data BExp a b   = Lt (Exp a b) (Exp a b)
+data BExp a b = Lt (Exp a b) (Exp a b)
                 | Gt (Exp a b) (Exp a b)
                 | Eq (Exp a b) (Exp a b)
                 | AND (BExp a b) (BExp a b)

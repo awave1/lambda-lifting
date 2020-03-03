@@ -1,10 +1,10 @@
 name: lambda-lifting
 version: 0.1.0.0
-github: "githubuser/lambda-lifting"
+github: 'githubuser/lambda-lifting'
 license: BSD3
-author: "Author name here"
-maintainer: "example@example.com"
-copyright: "2020 Author name here"
+author: 'Author name here'
+maintainer: 'example@example.com'
+copyright: '2020 Author name here'
 
 extra-source-files:
   - README.md
@@ -23,8 +23,7 @@ dependencies:
   - base >= 4.7 && < 5
   - array
   - containers
-  - transformers
-  - random
+  - mtl
 
 library:
   source-dirs: src

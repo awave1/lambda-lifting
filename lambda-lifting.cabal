@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 5594675582ba7c1582561919617d1e86b80f90ed3d9d2a4405a73628a79f2d83
+-- hash: 54375f163a8fc5ec19d19b4817924fa366994e875d8531426932b4641a03758b
 
 name:           lambda-lifting
 version:        0.1.0.0
@@ -38,7 +38,6 @@ library
       Lib
       ParAssignment
       ParseProg
-      Rand
   other-modules:
       Paths_lambda_lifting
   hs-source-dirs:
@@ -47,8 +46,7 @@ library
       array
     , base >=4.7 && <5
     , containers
-    , random
-    , transformers
+    , mtl
   default-language: Haskell2010
 
 executable lambda-lifting-exe
@@ -63,8 +61,7 @@ executable lambda-lifting-exe
     , base >=4.7 && <5
     , containers
     , lambda-lifting
-    , random
-    , transformers
+    , mtl
   default-language: Haskell2010
 
 test-suite lambda-lifting-test
@@ -80,6 +77,5 @@ test-suite lambda-lifting-test
     , base >=4.7 && <5
     , containers
     , lambda-lifting
-    , random
-    , transformers
+    , mtl
   default-language: Haskell2010
