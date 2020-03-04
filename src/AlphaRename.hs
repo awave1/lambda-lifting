@@ -15,19 +15,17 @@ newtype Identity a = Identity { runIdentity :: a }
 
 {-
     State stores (in order):
-        1. Variable map - varmap[String] = String
+        1. - Variable map - varmap[String] = String
             keys are original names
             values are alpha renamed variable names
-        2. Function map - funmap[String] = String
+           - variable count, integer that contains current var count
+        2. - Function map - funmap[String] = String
             keys are original names
             values are alpha renamed variable names
-        3. varcount - integer, that contains current variable count.
-            Used to rename variables
-        4. funcount - integer, that contains current function count.
-            Used to rename functions
+           - funcount - integer, that contains current function count.
+             Used to rename functions
 -}
 type RenameState = ((Map String String, Int), (Map String String, Int))
--- type AlphaState = ((Map String String, Int), (Map String String, Int))
 
 type Program = Prog String String
 type Function = Fun String String
