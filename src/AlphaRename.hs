@@ -26,7 +26,7 @@ newtype Identity a = Identity { runIdentity :: a }
         4. funcount - integer, that contains current function count.
             Used to rename functions
 -}
-type RenameState = (Map String String, Map String String, Int, Int)
+type RenameState = ((Map String String, Int), (Map String String, Int))
 -- type AlphaState = ((Map String String, Int), (Map String String, Int))
 
 type Program = Prog String String
@@ -38,8 +38,9 @@ type BoolExpression = BExp String String
 alphaRename :: Program -> Program
 alphaRename (Prog functions) = Prog modifiedFunctions
  where
-  (_, modifiedFunctions) =
-    modifyFunctions ((Map.empty, Map.empty, 0, 0), functions)
+   initialState = ((Map.empty, 0), (Map.empty, 0))
+   (_, modifiedFunctions) =
+    modifyFunctions (initialState, functions)
 
 modifyFunctions :: (RenameState, [Function]) -> (RenameState, [Function])
 modifyFunctions (progState, []) = (progState, [])
@@ -53,16 +54,16 @@ modifyFunction :: (RenameState, Function) -> (RenameState, Function)
 modifyFunction = modifyFunctionBody . modifyFunctionArgs . modifyFunctionName
 
 modifyFunctionName :: (RenameState, Function) -> (RenameState, Function)
-modifyFunctionName ((varMap, funMap, varCount, funCount), Fun (name, args, expression))
+modifyFunctionName (((varMap, varCount), (funMap, funCount)), Fun (name, args, expression))
   = case funMap Map.!? name of
     Just alias -> do
       let fun = Fun (alias, args, expression)
-      ((varMap, funMap, varCount, funCount), fun)
+      (((varMap, varCount), (funMap, funCount)), fun)
     Nothing -> do
       let alias        = "f" ++ show funCount
       let nextFunCount = funCount + 1
       let fun          = Fun (alias, args, expression)
-      ((varMap, Map.insert name alias funMap, varCount, nextFunCount), fun)
+      (((varMap, varCount), (Map.insert name alias funMap, nextFunCount)), fun)
 
 -- |
 modifyFunctionArgs :: (RenameState, Function) -> (RenameState, Function)
@@ -72,14 +73,14 @@ modifyFunctionArgs (progState, Fun (name, args, expr)) =
   (newState, newArgs) = modifyFunctionArg progState args
 -- modifyFunctionArg :: RenameState -> FunArgs -> (RenameState, FunArgs)
   modifyFunctionArg progState [] = (progState, [])
-  modifyFunctionArg (varMap, funMap, varCount, funCount) (arg : args) =
+  modifyFunctionArg ((varMap, varCount), (funMap, funCount)) (arg : args) =
     (newState, newArg : newArgs)   where
     (updatedState, newArg) = case varMap Map.!? arg of
-      Just alias -> ((varMap, funMap, varCount, funCount), alias)
+      Just alias -> (((varMap, varCount), (funMap, funCount)), alias)
       Nothing    -> do
         let alias        = "x" ++ show varCount
         let nextVarCount = varCount + 1
-        ((Map.insert arg alias varMap, funMap, nextVarCount, funCount), alias)
+        (((Map.insert arg alias varMap, nextVarCount), (funMap, funCount)), alias)
     (newState, newArgs) = modifyFunctionArg updatedState args
 
 modifyFunctionBody :: (RenameState, Function) -> (RenameState, Function)
@@ -88,51 +89,51 @@ modifyFunctionBody (progState, Fun (name, args, exp)) =
   in  (newState, Fun (name, args, newExpr))
 
 modifyExpression :: (RenameState, Expression) -> (RenameState, Expression)
-modifyExpression ((varMap, funMap, varCount, funCount), expression) =
+modifyExpression (((varMap, varCount), (funMap, funCount)), expression) =
   case expression of
     (VAR v) -> case varMap Map.!? v of
-      Just alias -> ((varMap, funMap, varCount, funCount), VAR alias)
+      Just alias -> (((varMap, varCount), (funMap, funCount)), VAR alias)
       Nothing    -> error $ "VAR error: " ++ v
 
-    CONST exp1 -> ((varMap, funMap, varCount, funCount), CONST exp1)
+    CONST exp1 -> (((varMap, varCount), (funMap, funCount)), CONST exp1)
 
     ADD e1 e2  -> do
       let (stateE1, newExp1) =
-            modifyExpression ((varMap, funMap, varCount, funCount), e1)
+            modifyExpression (((varMap, varCount), (funMap, funCount)), e1)
       let (newState, newExp2) = modifyExpression (stateE1, e2)
 
       (newState, ADD newExp1 newExp2)
 
     SUB e1 e2 -> do
       let (stateE1, newExp1) =
-            modifyExpression ((varMap, funMap, varCount, funCount), e1)
+            modifyExpression (((varMap, varCount), (funMap, funCount)), e1)
       let (newState, newExp2) = modifyExpression (stateE1, e2)
 
       (newState, SUB newExp1 newExp2)
 
     MUL e1 e2 -> do
       let (stateE1, newExp1) =
-            modifyExpression ((varMap, funMap, varCount, funCount), e1)
+            modifyExpression (((varMap, varCount), (funMap, funCount)), e1)
       let (newState, newExp2) = modifyExpression (stateE1, e2)
 
       (newState, MUL newExp1 newExp2)
 
     DIV e1 e2 -> do
       let (stateE1, newExp1) =
-            modifyExpression ((varMap, funMap, varCount, funCount), e1)
+            modifyExpression (((varMap, varCount), (funMap, funCount)), e1)
       let (newState, newExp2) = modifyExpression (stateE1, e2)
 
       (newState, DIV newExp1 newExp2)
 
     NEG e1 -> do
       let (newState, newExp1) =
-            modifyExpression ((varMap, funMap, varCount, funCount), e1)
+            modifyExpression (((varMap, varCount), (funMap, funCount)), e1)
 
       (newState, NEG newExp1)
 
     COND boolExp e1 e2 -> do
       let (boolExpState, newBoolExp) =
-            modifyBoolExpression ((varMap, funMap, varCount, funCount), boolExp)
+            modifyBoolExpression (((varMap, varCount), (funMap, funCount)), boolExp)
       let (stateE1, newExp1)  = modifyExpression (boolExpState, e1)
       let (newState, newExp2) = modifyExpression (stateE1, e2)
 
@@ -140,7 +141,7 @@ modifyExpression ((varMap, funMap, varCount, funCount), expression) =
 
     LET functions letExpression -> do
       let (letState, newLetFunctions) =
-            modifyLets ((varMap, funMap, varCount, funCount), functions)
+            modifyLets (((varMap, varCount), (funMap, funCount)), functions)
       let (funcState, newFunctions) =
             modifyLetFunctions (letState, newLetFunctions)
       let (newState, newExpression) =
@@ -150,7 +151,7 @@ modifyExpression ((varMap, funMap, varCount, funCount), expression) =
 
     APP expression expressions -> do
       let (newAppState, newExpression) =
-            modifyApp ((varMap, funMap, varCount, funCount), expression)
+            modifyApp (((varMap, varCount), (funMap, funCount)), expression)
       let (newState, newExpressions) =
             modifyListOfExpressions (newAppState, expressions)
 
@@ -222,7 +223,7 @@ modifyLets (progState, f : funs) = (newState, newFun : newFuns) where
   (newState   , newFuns) = modifyLets (newFunState, funs)
 
 modifyApp :: (RenameState, String) -> (RenameState, String)
-modifyApp ((varMap, funMap, varCount, funCount), app) =
+modifyApp (((varMap, varCount), (funMap, funCount)), app) =
   if app `Map.member` funMap
-    then ((varMap, funMap, varCount, funCount), funMap Map.! app)
+    then (((varMap, varCount), (funMap, funCount)), funMap Map.! app)
     else error $ "unknown function: " ++ app
