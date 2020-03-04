@@ -203,24 +203,23 @@ modifyListOfExpressions
 modifyListOfExpressions (progState, []         ) = (progState, [])
 modifyListOfExpressions (progState, exp : exprs) = (newState, newExp : newExps) where
   (expState, newExp ) = modifyExpression (progState, exp)
-  (newState, newExps) = modifyListOfExpressions (expState, newExps)
+  (newState, newExps) = modifyListOfExpressions (expState, exprs)
 
 modifyLetFunctions :: (RenameState, [Function]) -> (RenameState, [Function])
-modifyLetFunctions (table, []      ) = (table, [])
-modifyLetFunctions (table, l : list) = (tb2, fun1 : funcs) where
-  (tb1, fun1 ) = modifyLetFunction (table, l)
-  (tb2, funcs) = modifyLetFunctions (tb1, list)
+modifyLetFunctions (progState, []      ) = (progState, [])
+modifyLetFunctions (progState, l : list) = (newState, f : funs) where
+  (letState, f   ) = modifyLetFunction (progState, l)
+  (newState, funs) = modifyLetFunctions (letState, list)
   -- renameLetFunction :: (ST, Fun String String) -> (ST, (Fun String String))
-  modifyLetFunction (table, fun) = (st, fun2)   where
-    (st1, fun1) = modifyFunctionArgs (table, fun)
-    (st , fun2) = modifyFunctionBody (st1, fun1)
+  modifyLetFunction (progState, fun) = (newState, newFun)   where
+    (argsState, newArgsFun) = modifyFunctionArgs (progState, fun)
+    (newState , newFun    ) = modifyFunctionBody (argsState, newArgsFun)
 
 modifyLets :: (RenameState, [Function]) -> (RenameState, [Function])
-modifyLets (table, []      ) = (table, [])
-modifyLets (table, f : funs) = (newTable, functions) where
-  (t1      , fun1     ) = modifyFunctionName (table, f)
-  (t2      , funs2    ) = modifyLets (t1, funs)
-  (newTable, functions) = (t2, fun1 : funs2)
+modifyLets (progState, []      ) = (progState, [])
+modifyLets (progState, f : funs) = (newState, newFun : newFuns) where
+  (newFunState, newFun ) = modifyFunctionName (progState, f)
+  (newState   , newFuns) = modifyLets (newFunState, funs)
 
 modifyApp :: (RenameState, String) -> (RenameState, String)
 modifyApp ((varMap, funMap, varCount, funCount), app) =

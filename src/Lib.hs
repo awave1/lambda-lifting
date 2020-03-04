@@ -19,5 +19,12 @@ lambdaLift = do
   let ast = progToAST programStr
   putStrLn "Before: "
   putStrLn $ show_prog ast
+  putStrLn "AST:"
+  print ast
+  putStrLn "------------------------------------------"
+
   putStrLn "After:"
-  putStrLn $ show_prog $ alphaRename ast
+  let renamedAst = alphaRename ast
+  putStrLn $ show_prog renamedAst
+  putStrLn "AST:"
+  print renamedAst
