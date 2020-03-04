@@ -200,11 +200,10 @@ modifyBoolExpression (progState, boolexpr) = case boolexpr of
 
 modifyListOfExpressions
   :: (RenameState, [Expression]) -> (RenameState, [Expression])
-modifyListOfExpressions (table, []       ) = (table, [])
-modifyListOfExpressions (table, e : exprs) = (newTable, expressions) where
-  (st1     , e1         ) = modifyExpression (table, e)
-  (st2     , exps       ) = modifyListOfExpressions (st1, exprs)
-  (newTable, expressions) = (st2, e1 : exps)
+modifyListOfExpressions (progState, []         ) = (progState, [])
+modifyListOfExpressions (progState, exp : exprs) = (newState, newExp : newExps) where
+  (expState, newExp ) = modifyExpression (progState, exp)
+  (newState, newExps) = modifyListOfExpressions (expState, newExps)
 
 modifyLetFunctions :: (RenameState, [Function]) -> (RenameState, [Function])
 modifyLetFunctions (table, []      ) = (table, [])
