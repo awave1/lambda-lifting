@@ -11,8 +11,6 @@ import           Data.List
 import           Data.Maybe
 import           Control.Monad.State
 
-newtype Identity a = Identity { runIdentity :: a }
-
 {-
     State stores (in order):
         1. - Variable map - varmap[String] = String
@@ -26,12 +24,6 @@ newtype Identity a = Identity { runIdentity :: a }
              Used to rename functions
 -}
 type RenameState = ((Map String String, Int), (Map String String, Int))
-
-type Program = Prog String String
-type Function = Fun String String
-type FunArgs = [String]
-type Expression = Exp String String
-type BoolExpression = BExp String String
 
 alphaRename :: Program -> Program
 alphaRename (Prog functions) = Prog modifiedFunctions

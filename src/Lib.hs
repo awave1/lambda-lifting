@@ -9,6 +9,7 @@ import           ParseProg                      ( parseFile
                                                 , progToAST
                                                 )
 import           AlphaRename
+import           CallGraph
 
 
 lambdaLift :: IO ()
@@ -28,3 +29,6 @@ lambdaLift = do
   putStrLn $ show_prog renamedAst
   putStrLn "AST:"
   print renamedAst
+
+  putStrLn "------------------------------------------"
+  -- let callGraph = buildCallGraph renamedAst
