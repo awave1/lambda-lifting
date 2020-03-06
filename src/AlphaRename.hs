@@ -9,7 +9,6 @@ import           Data.Map                       ( Map )
 import qualified Data.Map                      as Map
 import           Data.List
 import           Data.Maybe
-import           Control.Monad.State
 
 {-
     State stores (in order):
@@ -61,7 +60,8 @@ modifyFunctionArgs (progState, Fun (name, args, expr)) =
   (newState, Fun (name, newArgs, expr))
  where
   (newState, newArgs) = modifyFunctionArg progState args
--- modifyFunctionArg :: RenameState -> FunArgs -> (RenameState, FunArgs)
+
+  -- modifyFunctionArg :: RenameState -> FunArgs -> (RenameState, FunArgs)
   modifyFunctionArg progState [] = (progState, [])
   modifyFunctionArg ((varMap, varCount), (funMap, funCount)) (arg : args) =
     (newState, newArg : newArgs)   where
@@ -81,11 +81,11 @@ modifyFunctionBody (progState, Fun (name, args, exp)) =
 modifyExpression :: (RenameState, Expression) -> (RenameState, Expression)
 modifyExpression (((varMap, varCount), (funMap, funCount)), expression) =
   case expression of
+    CONST exp1 -> (((varMap, varCount), (funMap, funCount)), CONST exp1)
+
     (VAR v) -> case varMap Map.!? v of
       Just alias -> (((varMap, varCount), (funMap, funCount)), VAR alias)
       Nothing    -> error $ "VAR error: " ++ v
-
-    CONST exp1 -> (((varMap, varCount), (funMap, funCount)), CONST exp1)
 
     ADD e1 e2  -> do
       let (stateE1, newExp1) =
@@ -130,10 +130,8 @@ modifyExpression (((varMap, varCount), (funMap, funCount)), expression) =
       (newState, COND newBoolExp newExp1 newExp2)
 
     LET functions letExpression -> do
-      let (letState, newLetFunctions) =
-            modifyLets (((varMap, varCount), (funMap, funCount)), functions)
       let (funcState, newFunctions) =
-            modifyLetFunctions (letState, newLetFunctions)
+            modifyFunctions (((varMap, varCount), (funMap, funCount)), functions)
       let (newState, newExpression) =
             modifyExpression (funcState, letExpression)
 
@@ -195,22 +193,6 @@ modifyListOfExpressions (progState, []         ) = (progState, [])
 modifyListOfExpressions (progState, exp : exprs) = (newState, newExp : newExps) where
   (expState, newExp ) = modifyExpression (progState, exp)
   (newState, newExps) = modifyListOfExpressions (expState, exprs)
-
-modifyLetFunctions :: (RenameState, [Function]) -> (RenameState, [Function])
-modifyLetFunctions (progState, []      ) = (progState, [])
-modifyLetFunctions (progState, l : list) = (newState, f : funs) where
-  (letState, f   ) = modifyLetFunction (progState, l)
-  (newState, funs) = modifyLetFunctions (letState, list)
-  -- renameLetFunction :: (ST, Fun String String) -> (ST, (Fun String String))
-  modifyLetFunction (progState, fun) = (newState, newFun)   where
-    (argsState, newArgsFun) = modifyFunctionArgs (progState, fun)
-    (newState , newFun    ) = modifyFunctionBody (argsState, newArgsFun)
-
-modifyLets :: (RenameState, [Function]) -> (RenameState, [Function])
-modifyLets (progState, []      ) = (progState, [])
-modifyLets (progState, f : funs) = (newState, newFun : newFuns) where
-  (newFunState, newFun ) = modifyFunctionName (progState, f)
-  (newState   , newFuns) = modifyLets (newFunState, funs)
 
 modifyApp :: (RenameState, String) -> (RenameState, String)
 modifyApp (((varMap, varCount), (funMap, funCount)), app) =
