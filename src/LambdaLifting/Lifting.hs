@@ -17,18 +17,13 @@ type FunVarTable = Map String (ArgVars, FreeVars)
 -- | TODO
 lambdaLifting :: Program -> Graph -> Program
 lambdaLifting (Prog functions) _ = do
-  let varTable = buildVarTable functions
+  let varTable = buildVarTable functions Map.empty
   -- build call table
   -- update table with args/free vars
   Prog []
 
-buildVarTable :: [Function] -> FunVarTable
-buildVarTable fns = buildVarTable' fns Map.empty
-
-buildVarTable' :: [Function] -> FunVarTable -> FunVarTable
-buildVarTable' [] table = table
-buildVarTable' (f : fns) table =
-  buildVarTableEntry f $ buildVarTable' fns table
+buildVarTable :: [Function] -> FunVarTable -> FunVarTable
+buildVarTable fns table = foldr buildVarTableEntry table fns
 
 buildVarTableEntry :: Function -> FunVarTable -> FunVarTable
 buildVarTableEntry (Fun (name, args, exp)) table = updatedTable
@@ -43,7 +38,7 @@ getFreeVars exp name funVarTable = case exp of
     Map.insert name (args, Set.insert v freeVars) funVarTable
 
   LET letFuns letExpr -> do
-    let letTable = buildVarTable' letFuns funVarTable
+    let letTable = buildVarTable letFuns funVarTable
     getFreeVars letExpr name letTable
 
   ADD e1 e2 -> getFreeVars e1 name $ getFreeVars e2 name funVarTable

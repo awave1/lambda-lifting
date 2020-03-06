@@ -11,6 +11,8 @@ import           ParseProg                      ( parseFile
 import           LambdaLifting.AlphaRenaming
 import           LambdaLifting.CallGraph
 import           LambdaLifting.Lifting
+import           Data.Map                       ( Map )
+import qualified Data.Map                      as Map
 
 
 lambdaLift :: IO ()
@@ -36,6 +38,6 @@ lambdaLift = do
   print callGraph
   putStrLn "------------------------------------------"
   let Prog (funs) = renamedAst
-  let varTable    = buildVarTable funs
+  let varTable    = buildVarTable funs Map.empty
 
   print varTable
