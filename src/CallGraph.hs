@@ -1,21 +1,14 @@
-module CallGraph where
+module CallGraph
+  ( buildCallGraph
+  )
+where
 
 import           Data.Map                       ( Map )
 import qualified Data.Map                      as Map
 import           AST
 
-{-
-TODO: Build an edge list of functions
--}
-
--- | An edge is (function name, function name)
--- type Edge = 
 type Graph = Map String [String]
-type Edge = (String, String)
-type EdgeList = [Edge]
--- type Graph = Map String [String]
 
--- | f0 -> f1
 buildCallGraph :: Program -> Graph
 buildCallGraph (Prog functions) = exploreFunctions functions Map.empty
 
@@ -29,15 +22,14 @@ exploreFunctions (fun : funs) callGraph = newGraph
 exploreFunction :: Function -> Graph -> Graph
 exploreFunction (Fun (name, args, expr)) graph = newGraph
  where
-   -- TODO: move to a function
   graphNewFun = case graph Map.!? name of
     Nothing -> Map.insert name [] graph
-  newGraph = exploreFunctionBody expr name graphNewFun
+  newGraph = exploreExpression expr name graphNewFun
 
-exploreFunctionBody :: Expression -> String -> Graph -> Graph
-exploreFunctionBody expr currentFunName graph = case expr of
+exploreExpression :: Expression -> String -> Graph -> Graph
+exploreExpression expr currentFunName graph = case expr of
   LET letFunctions letBody -> do
-    let expressionsGraph = exploreFunctionBody letBody currentFunName graph
+    let expressionsGraph = exploreExpression letBody currentFunName graph
     let functionsGraph   = exploreFunctions letFunctions expressionsGraph
 
     functionsGraph
@@ -45,40 +37,25 @@ exploreFunctionBody expr currentFunName graph = case expr of
   APP name (exp : exps) -> do
     let adjList      = graph Map.! currentFunName
     let updatedGraph = Map.insert currentFunName (name : adjList) graph
+    let expGraph     = exploreExpression exp currentFunName updatedGraph
+    let appGraph     = exploreExpressions exps currentFunName expGraph
 
-    -- TODO: process expressions
+    appGraph
 
-    updatedGraph
+  ADD exp1 exp2 -> exploreBinExpression exp1 exp2 currentFunName graph
+  SUB exp1 exp2 -> exploreBinExpression exp1 exp2 currentFunName graph
+  MUL exp1 exp2 -> exploreBinExpression exp1 exp2 currentFunName graph
+  DIV exp1 exp2 -> exploreBinExpression exp1 exp2 currentFunName graph
+  NEG exp1      -> exploreExpression exp1 currentFunName graph
+  _             -> graph
 
-  VAR   exp1    -> graph
-  CONST exp1    -> graph
+exploreBinExpression :: Expression -> Expression -> String -> Graph -> Graph
+exploreBinExpression exp1 exp2 currentFunName graph =
+  let callGraph = exploreExpression exp2 currentFunName
+        $ exploreExpression exp1 currentFunName graph
+  in  callGraph
 
-  ADD exp1 exp2 -> do
-    let cg1       = exploreFunctionBody exp1 currentFunName graph
-    let callGraph = exploreFunctionBody exp2 currentFunName cg1
-
-    callGraph
-
-  SUB exp1 exp2 -> do
-    let cg1       = exploreFunctionBody exp1 currentFunName graph
-    let callGraph = exploreFunctionBody exp2 currentFunName cg1
-
-    callGraph
-
-  MUL exp1 exp2 -> do
-    let cg1       = exploreFunctionBody exp1 currentFunName graph
-    let callGraph = exploreFunctionBody exp2 currentFunName cg1
-
-    callGraph
-
-  DIV exp1 exp2 -> do
-    let cg1       = exploreFunctionBody exp1 currentFunName graph
-    let callGraph = exploreFunctionBody exp2 currentFunName cg1
-
-    callGraph
-
-  NEG exp1 -> do
-    let callGraph = exploreFunctionBody exp1 currentFunName graph
-
-    callGraph
-
+exploreExpressions :: [Expression] -> String -> Graph -> Graph
+exploreExpressions [] _ g = g
+exploreExpressions (e : exprs) currentFunName g =
+  exploreExpressions exprs currentFunName $ exploreExpression e currentFunName g
