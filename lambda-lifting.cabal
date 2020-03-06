@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 892f266ba0388304ba142ac19e2b1edc6107812a967168cd1abd35906d2d6a47
+-- hash: 0138c88df504be092e99af437884b7a3c0cfdd6baedb2ca007dc0f83c344b6bc
 
 name:           lambda-lifting
 version:        0.1.0.0
@@ -28,18 +28,18 @@ source-repository head
 library
   exposed-modules:
       AbsAssignment
+      AlphaRename
       AST
       ASTConverter
       CallGraph
       ErrM
-      LambdaLifting.AlphaRename
       Language
       LayoutAssignment
       LexAssignment
       Lib
       ParAssignment
       ParseProg
-      AlphaRename
+      StatefulAlphaRename
   other-modules:
       Paths_lambda_lifting
   hs-source-dirs:
@@ -49,8 +49,6 @@ library
       array
     , base >=4.7 && <5
     , containers
-    , fgl
-    , graphite
     , mtl
   default-language: Haskell2010
 
@@ -65,8 +63,6 @@ executable lambda-lifting-exe
       array
     , base >=4.7 && <5
     , containers
-    , fgl
-    , graphite
     , lambda-lifting
     , mtl
   default-language: Haskell2010
@@ -83,8 +79,6 @@ test-suite lambda-lifting-test
       array
     , base >=4.7 && <5
     , containers
-    , fgl
-    , graphite
     , lambda-lifting
     , mtl
   default-language: Haskell2010

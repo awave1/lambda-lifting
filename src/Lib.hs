@@ -31,4 +31,5 @@ lambdaLift = do
   print renamedAst
 
   putStrLn "------------------------------------------"
-  -- let callGraph = buildCallGraph renamedAst
+  let callGraph = buildCallGraph renamedAst
+  print callGraph

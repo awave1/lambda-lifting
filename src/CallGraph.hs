@@ -26,13 +26,59 @@ exploreFunctions (fun : funs) callGraph = newGraph
   funGraph = exploreFunction fun callGraph
   newGraph = exploreFunctions funs funGraph
 
--- TODO: exoplore expression in a function?
 exploreFunction :: Function -> Graph -> Graph
 exploreFunction (Fun (name, args, expr)) graph = newGraph
  where
-  graphNewFun = Map.insert name [] Map.empty
-  newGraph    = exploreFunctionBody expr graphNewFun
+   -- TODO: move to a function
+  graphNewFun = case graph Map.!? name of
+    Nothing -> Map.insert name [] graph
+  newGraph = exploreFunctionBody expr name graphNewFun
 
+exploreFunctionBody :: Expression -> String -> Graph -> Graph
+exploreFunctionBody expr currentFunName graph = case expr of
+  LET letFunctions letBody -> do
+    let expressionsGraph = exploreFunctionBody letBody currentFunName graph
+    let functionsGraph   = exploreFunctions letFunctions expressionsGraph
 
-exploreFunctionBody :: Expression -> Graph -> Graph
-exploreFunctionBody = undefined
+    functionsGraph
+
+  APP name (exp : exps) -> do
+    let adjList      = graph Map.! currentFunName
+    let updatedGraph = Map.insert currentFunName (name : adjList) graph
+
+    -- TODO: process expressions
+
+    updatedGraph
+
+  VAR   exp1    -> graph
+  CONST exp1    -> graph
+
+  ADD exp1 exp2 -> do
+    let cg1       = exploreFunctionBody exp1 currentFunName graph
+    let callGraph = exploreFunctionBody exp2 currentFunName cg1
+
+    callGraph
+
+  SUB exp1 exp2 -> do
+    let cg1       = exploreFunctionBody exp1 currentFunName graph
+    let callGraph = exploreFunctionBody exp2 currentFunName cg1
+
+    callGraph
+
+  MUL exp1 exp2 -> do
+    let cg1       = exploreFunctionBody exp1 currentFunName graph
+    let callGraph = exploreFunctionBody exp2 currentFunName cg1
+
+    callGraph
+
+  DIV exp1 exp2 -> do
+    let cg1       = exploreFunctionBody exp1 currentFunName graph
+    let callGraph = exploreFunctionBody exp2 currentFunName cg1
+
+    callGraph
+
+  NEG exp1 -> do
+    let callGraph = exploreFunctionBody exp1 currentFunName graph
+
+    callGraph
+
