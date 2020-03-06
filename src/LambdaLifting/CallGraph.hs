@@ -1,4 +1,4 @@
-module CallGraph
+module LambdaLifting.CallGraph
   ( buildCallGraph
   )
 where

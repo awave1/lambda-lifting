@@ -1,4 +1,4 @@
-module AlphaRename
+module LambdaLifting.AlphaRenaming
   ( alphaRename
   )
 where

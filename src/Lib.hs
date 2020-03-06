@@ -8,8 +8,9 @@ import           System.Environment
 import           ParseProg                      ( parseFile
                                                 , progToAST
                                                 )
-import           AlphaRename
-import           CallGraph
+import           LambdaLifting.AlphaRenaming
+import           LambdaLifting.CallGraph
+import           LambdaLifting.Lifting
 
 
 lambdaLift :: IO ()

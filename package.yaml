@@ -26,9 +26,12 @@ dependencies:
   - mtl
 
 library:
-  source-dirs:
-    - src
-    - src/LambdaLifting
+  source-dirs: src/
+  exposed-modules:
+    - Lib
+    - LambdaLifting.AlphaRenaming
+    - LambdaLifting.CallGraph
+    - LambdaLifting.Lifting
 
 executables:
   lambda-lifting-exe:
