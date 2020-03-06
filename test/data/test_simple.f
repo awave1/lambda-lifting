@@ -1,3 +1,3 @@
-fun f(v1) = let
-  fun g(v2) = v2*v2
-in g(v1)+v1
+fun f(v1, v2) = let
+  fun g(v) = v*v1
+in g(v1)+v2

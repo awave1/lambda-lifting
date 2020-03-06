@@ -35,4 +35,7 @@ lambdaLift = do
   let callGraph = buildCallGraph renamedAst
   print callGraph
   putStrLn "------------------------------------------"
-  -- let liftedProg = lambdaLifting String
+  let Prog (funs) = renamedAst
+  let varTable    = buildVarTable funs
+
+  print varTable
