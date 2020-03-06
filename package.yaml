@@ -28,7 +28,9 @@ dependencies:
   - graphite
 
 library:
-  source-dirs: src
+  source-dirs:
+    - src
+    - src/LambdaLifting
 
 executables:
   lambda-lifting-exe:

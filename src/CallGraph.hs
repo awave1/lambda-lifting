@@ -11,6 +11,8 @@ TODO: Build an edge list of functions
 -- | An edge is (function name, function name)
 -- type Edge = 
 type Graph = Map String [String]
+type Edge = (String, String)
+type EdgeList = [Edge]
 -- type Graph = Map String [String]
 
 -- | f0 -> f1
