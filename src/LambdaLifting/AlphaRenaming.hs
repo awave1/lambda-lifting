@@ -4,7 +4,7 @@ module LambdaLifting.AlphaRenaming
 where
 
 import           ParseProg
-import           AST
+import           Parser.AST
 import           Data.Map                       ( Map )
 import qualified Data.Map                      as Map
 import           Data.List

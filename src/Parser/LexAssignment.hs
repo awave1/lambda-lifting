@@ -4,7 +4,7 @@
 
 {-# OPTIONS -fno-warn-incomplete-patterns #-}
 {-# OPTIONS_GHC -w #-}
-module LexAssignment where
+module Parser.LexAssignment where
 
 
 

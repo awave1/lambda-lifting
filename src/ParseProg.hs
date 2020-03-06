@@ -1,12 +1,12 @@
 module ParseProg where
 
-import           LexAssignment
-import           ParAssignment
-import           AbsAssignment
-import           LayoutAssignment
-import qualified AST                           as A
-import           ASTConverter
-import           ErrM
+import           Parser.LexAssignment
+import           Parser.ParAssignment
+import           Parser.AbsAssignment
+import           Parser.LayoutAssignment
+import qualified Parser.AST                    as A
+import           Parser.ASTConverter
+import           Parser.ErrM
 
 myLLexer = resolveLayout True . myLexer
 

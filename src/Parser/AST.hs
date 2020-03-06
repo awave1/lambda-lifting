@@ -1,5 +1,5 @@
 
-module AST where
+module Parser.AST where
 
 -----------------------------------------------------------------------------
 -----------------------------------------------------------------------------
@@ -55,7 +55,8 @@ data Exp a b =  ADD (Exp a b) (Exp a b)
 
 type Program = Prog String String
 type Function = Fun String String
-type FunArgs = [String]
+type Arg = String
+type FunArgs = [Arg]
 type Expression = Exp String String
 type BoolExpression = BExp String String
 

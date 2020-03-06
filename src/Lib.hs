@@ -3,7 +3,7 @@ module Lib
   )
 where
 
-import           AST
+import           Parser.AST
 import           System.Environment
 import           ParseProg                      ( parseFile
                                                 , progToAST
@@ -34,3 +34,5 @@ lambdaLift = do
   putStrLn "------------------------------------------"
   let callGraph = buildCallGraph renamedAst
   print callGraph
+  putStrLn "------------------------------------------"
+  -- let liftedProg = lambdaLifting String

@@ -7,10 +7,8 @@ import           Data.Map                       ( Map )
 import qualified Data.Map                      as Map
 import           Data.Set                       ( Set )
 import qualified Data.Set                      as Set
-import           AST
-
-type AdjList = Set String
-type Graph = Map String AdjList
+import           Parser.AST
+import           LambdaLifting.Graph
 
 buildCallGraph :: Program -> Graph
 buildCallGraph (Prog functions) = exploreFunctions functions Map.empty
