@@ -1,10 +1,10 @@
 name: lambda-lifting
 version: 0.1.0.0
-github: "githubuser/lambda-lifting"
+github: 'githubuser/lambda-lifting'
 license: BSD3
-author: "Author name here"
-maintainer: "example@example.com"
-copyright: "2020 Author name here"
+author: 'Author name here'
+maintainer: 'example@example.com'
+copyright: '2020 Author name here'
 
 extra-source-files:
   - README.md
@@ -22,9 +22,16 @@ description: Please see the README on GitHub at <https://github.com/githubuser/l
 dependencies:
   - base >= 4.7 && < 5
   - array
+  - containers
+  - mtl
 
 library:
-  source-dirs: src
+  source-dirs: src/
+  exposed-modules:
+    - Lib
+    - LambdaLifting.AlphaRenaming
+    - LambdaLifting.CallGraph
+    - LambdaLifting.Lifting
 
 executables:
   lambda-lifting-exe:
@@ -36,9 +43,6 @@ executables:
       - -with-rtsopts=-N
     dependencies:
       - lambda-lifting
-    build-tools:
-      - alex
-      - happy
 
 tests:
   lambda-lifting-test:
@@ -50,6 +54,3 @@ tests:
       - -with-rtsopts=-N
     dependencies:
       - lambda-lifting
-    build-tools:
-      - alex
-      - happy
