@@ -71,26 +71,42 @@ getFreeVars exp name funVarTable = case exp of
   NEG e1    -> getFreeVars e1 name funVarTable
   _         -> funVarTable
 
+{-|
+  update the vargs in the table
+-}
 updateVarArgs :: Graph -> FunVarTable -> FunVarTable
 updateVarArgs callGraph table = do
   let funList = Map.toList callGraph
   updateVarArgs' funList table
 
-  -- fun:(edge:edges)
-
-  {-
-    for f in allfunnames
-      for f' in callGraph[f]
-        insert var free of f' to var arg of f''
-        return fun table
-  -}
-
 updateVarArgs' :: [(String, AdjList)] -> FunVarTable -> FunVarTable
-updateVarArgs' [] table = table
-updateVarArgs' (entry : entries) table =
-  updateEntry entry $ updateVarArgs' entries table
+updateVarArgs' entries table = foldr updateEntry table entries
 
+{-|
+  Update single entry in the graph adj list
+-}
 updateEntry :: (String, AdjList) -> FunVarTable -> FunVarTable
 updateEntry (funName, list) table = do
-  let (edge : edges) = Set.toList list
-  table
+  let updatedTable = updateEdges list funName table
+  updatedTable
+
+{-|
+  Update list of adjacent edges to specified function.
+  Should union the sets of varg
+-}
+updateEdges :: AdjList -> String -> FunVarTable -> FunVarTable
+updateEdges list funName table = if Set.size list == 0
+  then table
+  else do
+    let (edge : edges) = Set.toList list
+    updateEdges (Set.fromList edges) funName $ updateEdge edge funName table
+
+{-|
+  Update set of Vargs for specified function
+-}
+updateEdge :: String -> String -> FunVarTable -> FunVarTable
+updateEdge edge funName table = do
+  let (callerVargs, callerVfree) = table Map.! funName
+  let (vargs, vfree)             = table Map.! edge
+  let joinedArgs                 = Set.union vargs callerVargs
+  Map.insert funName (joinedArgs, callerVfree) table
