@@ -41,3 +41,8 @@ lambdaLift = do
   let varTable    = buildVarTable funs Map.empty
 
   print varTable
+
+  let updatedTable = updateVarArgs callGraph varTable
+
+
+  print updatedTable
